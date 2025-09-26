@@ -4,6 +4,12 @@ from blog import views
 
 app_name = 'blog'
 
+
+profile_urls = [
+    path('edit/', views.profile_edit, name='profile_edit'),
+    path('<str:username>/', views.profile, name='profile'),
+]
+
 urlpatterns = [
     path('', views.index, name='index'),
     path('posts/<int:post_id>/', views.post_detail, name='post_detail'),

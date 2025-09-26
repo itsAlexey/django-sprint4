@@ -1,5 +1,8 @@
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.models import User
+# Декоратор, который ограничивает доступ к view-функции только для авторизованных пользователей.
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
 from .models import Post, Category
@@ -49,3 +52,22 @@ def category_posts(request, category_slug):
         'blog/category.html',
         {'category': category, 'post_list': post_list}
     )
+
+
+def profile(request, username):
+    user = get_object_or_404(User, username=username)
+    posts = Post.objects.filter(author=user)  # Получили публикации юзера
+
+    context = {
+        'profile_user': user,
+        'posts': posts,
+    }
+    return render(request, 'profile.html', context)
+
+
+@login_required
+def profile_edit(request):
+    if request.method == 'POST':
+        # Здесь будет обработка формы редактирования
+        pass
+    return render(request, 'profile_edit.html')
