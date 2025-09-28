@@ -13,8 +13,8 @@ class ProfileForm(forms.ModelForm):
         fields = ("username", "first_name", "last_name", "email")
 
 
-class SignUpForm(UserCreationForm):
-    email = forms.EmailField(required=True, label="E-mail")
+class RegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
 
     class Meta:
         model = User
@@ -38,6 +38,3 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ("text",)
-        widgets = {
-            "text": forms.Textarea(attrs={"rows": 3}),
-        }

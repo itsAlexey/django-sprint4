@@ -1,9 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
-from pages import views as error_views
 from django.conf import settings
 from django.conf.urls.static import static
-
+from pages import views as error_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -17,4 +16,5 @@ handler500 = error_views.server_error
 handler403 = error_views.csrf_failure
 
 if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
