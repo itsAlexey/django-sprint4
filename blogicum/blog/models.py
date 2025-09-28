@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from core.models import PublicationTimestamps, BaseTitle
 
 User = get_user_model()
+
 TEXT_LENGTH = 256
 MAX_STR_LENGTH = 15
 
@@ -18,7 +20,7 @@ class Category(PublicationTimestamps, BaseTitle):
         help_text=(
             'Идентификатор страницы для URL; '
             'разрешены символы латиницы, цифры, дефис и подчёркивание.'
-        )
+        ),
     )
 
     class Meta:
@@ -54,7 +56,7 @@ class Post(PublicationTimestamps, BaseTitle):
         help_text=(
             'Если установить дату и время в будущем — '
             'можно делать отложенные публикации.'
-        )
+        ),
     )
     author = models.ForeignKey(
         User,
@@ -77,10 +79,56 @@ class Post(PublicationTimestamps, BaseTitle):
         verbose_name='Категория',
         related_name='posts',
     )
+    image = models.ImageField(
+        verbose_name='Картинка',
+        upload_to='posts_images/',
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return self.title[:MAX_STR_LENGTH]
+
+    @property
+    def is_visible(self):
+        """
+        Метод для проверки: показывать ли пост всем пользователям.
+        - должен быть опубликован
+        - и дата публикации <= теперь.
+        """
+        return self.is_published and self.pub_date <= timezone.now()
+
+
+class Comment(PublicationTimestamps):
+    """Комментарии под постами."""
+
+    text = models.TextField(verbose_name='Комментарий')
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Публикация',
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор комментария',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Создан',
+    )
+
+    class Meta:
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ('created_at',)
+
+    def __str__(self):
+        return f"{self.author}: {self.text[:MAX_STR_LENGTH]}"
