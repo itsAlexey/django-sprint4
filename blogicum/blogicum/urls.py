@@ -1,20 +1,18 @@
-from django.contrib import admin
-from django.urls import path, include
-from pages import views as error_views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import URLPattern, include, path
+
+handler403 = 'pages.views.permission_denied'
+handler404 = 'pages.views.page_not_found'
+handler500 = 'pages.views.server_error'
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", include("blog.urls", namespace="blog")),
-    path("auth/", include("django.contrib.auth.urls")),
-    path("pages/", include("pages.urls", namespace="pages")),
+    path('pages/', include('pages.urls', namespace='pages')),
+    path('', include('users.urls', namespace='users')),
+    path('', include('blog.urls', namespace='blog')),
+    path('auth/', include('django.contrib.auth.urls')),
+    path('admin/', admin.site.urls),
 ]
 
-handler404 = error_views.page_not_found
-handler500 = error_views.server_error
-handler403 = error_views.csrf_failure
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

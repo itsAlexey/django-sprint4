@@ -1,18 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.utils import timezone
+from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 
-from .models import Post, Category, Comment
 from .forms import RegistrationForm, ProfileForm, PostForm, CommentForm
+from .models import Post, Category, Comment
 
 User = get_user_model()
 
 
-def paginate(request, items):
-    paginator = Paginator(items, 10)
+def paginate(request, queryset, per_page=10):
+    paginator = Paginator(queryset, per_page)
     page_number = request.GET.get("page")
     return paginator.get_page(page_number)
 
@@ -25,7 +25,10 @@ def index(request):
 def category_posts(request, slug):
     category = get_object_or_404(Category, slug=slug)
     posts = category.posts.filter(is_published=True, pub_date__lte=timezone.now())
-    return render(request, "blog/category.html", {"category": category, "page_obj": paginate(request, posts)})
+    return render(request, "blog/category.html", {
+        "category": category,
+        "page_obj": paginate(request, posts),
+    })
 
 
 def profile(request, username):
@@ -34,7 +37,10 @@ def profile(request, username):
         posts = user.posts.all()
     else:
         posts = user.posts.filter(is_published=True, pub_date__lte=timezone.now())
-    return render(request, "blog/profile.html", {"profile_user": user, "page_obj": paginate(request, posts)})
+    return render(request, "blog/profile.html", {
+        "profile_user": user,
+        "page_obj": paginate(request, posts),
+    })
 
 
 def registration(request):
@@ -84,19 +90,14 @@ def edit_post(request, post_id):
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     comments = post.comments.all()
-    return render(request, "blog/detail.html", {"post": post, "comments": comments, "form": CommentForm()})
-
-
-@login_required
-def add_comment(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    form = CommentForm(request.POST)
-    if form.is_valid():
+    form = CommentForm(request.POST or None) if request.user.is_authenticated else None
+    if request.user.is_authenticated and request.method == "POST" and form.is_valid():
         comment = form.save(commit=False)
         comment.author = request.user
         comment.post = post
         comment.save()
-    return redirect("blog:post_detail", post_id=post.id)
+        return redirect("blog:post_detail", post_id=post.id)
+    return render(request, "blog/detail.html", {"post": post, "comments": comments, "form": form})
 
 
 @login_required
