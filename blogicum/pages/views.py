@@ -13,6 +13,7 @@ class RulesView(TemplateView):
 
     template_name = "pages/rules.html"
 
+
 def permission_denied(request, exception):
     """Ошибка 403 (нет прав)."""
     return render(request, "pages/403.html", status=403)

@@ -1,7 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 
 from .forms import PostForm, CommentForm
 from .models import Post, Comment, Category, User
@@ -68,7 +69,9 @@ class PostDetailView(PostBaseMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = CommentForm()
-        context["comments"] = self.get_object().comments.select_related("author")
+        context["comments"] = self.get_object().comments.select_related(
+            "author"
+        )
         return context
 
 
@@ -127,7 +130,9 @@ class CategoryView(ListView):
 
     def get_queryset(self):
         category_slug = self.kwargs["category_slug"]
-        category = get_object_or_404(Category, slug=category_slug, is_published=True)
+        category = get_object_or_404(Category,
+                                     slug=category_slug,
+                                     is_published=True)
         return filter_published_posts(category.posts.all())
 
 
@@ -148,5 +153,7 @@ class ProfileView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["profile_user"] = get_object_or_404(User, username=self.kwargs["username"])
+        context["profile_user"] = get_object_or_404(
+            User,
+            username=self.kwargs["username"])
         return context
