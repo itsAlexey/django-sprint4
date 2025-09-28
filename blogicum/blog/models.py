@@ -1,12 +1,28 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.utils import timezone
+from django.urls import reverse
 
 from core.models import PublicationTimestamps, BaseTitle
 
 User = get_user_model()
 TEXT_LENGTH = 256
 MAX_STR_LENGTH = 15
+
+
+class Location(PublicationTimestamps):
+    """Местоположения постов."""
+
+    name = models.CharField(
+        max_length=TEXT_LENGTH,
+        verbose_name='Название места'
+    )
+
+    class Meta:
+        verbose_name = 'местоположение'
+        verbose_name_plural = 'Местоположения'
+
+    def __str__(self):
+        return self.name[:MAX_STR_LENGTH]
 
 
 class Category(PublicationTimestamps, BaseTitle):
@@ -29,21 +45,10 @@ class Category(PublicationTimestamps, BaseTitle):
     def __str__(self):
         return self.title[:MAX_STR_LENGTH]
 
-
-class Location(PublicationTimestamps):
-    """Местоположения постов."""
-
-    name = models.CharField(
-        max_length=TEXT_LENGTH,
-        verbose_name='Название места'
-    )
-
-    class Meta:
-        verbose_name = 'местоположение'
-        verbose_name_plural = 'Местоположения'
-
-    def __str__(self):
-        return self.name[:MAX_STR_LENGTH]
+    def get_absolute_url(self) -> str:
+        return reverse(
+            "blog:category_posts", kwargs={"category_slug": self.slug}
+        )
 
 
 class Post(PublicationTimestamps, BaseTitle):
@@ -79,48 +84,50 @@ class Post(PublicationTimestamps, BaseTitle):
         related_name='posts',
     )
     image = models.ImageField(
-        upload_to="posts_images/",
+        upload_to='img/',
         blank=True,
         null=True,
-        verbose_name="Картинка"
+        verbose_name="Изображение"
     )
 
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
         ordering = ('-pub_date',)
+        default_related_name = 'posts'
 
     def __str__(self):
         return self.title[:MAX_STR_LENGTH]
 
-    @property
-    def is_visible(self):
-        """Пост виден всем: опубликован + не в будущем."""
-        return self.is_published and self.pub_date <= timezone.now()
+    def get_absolute_url(self) -> str:
+        return reverse("blog:post_detail", kwargs={"post_id": self.pk})
 
 
-class Comment(PublicationTimestamps):
-    """Комментарии к постам."""
-
+class Comment(models.Model):
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Автор",
+        related_name="comments",
+    )
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
         verbose_name="Публикация",
         related_name="comments",
     )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name="Автор комментария",
-        related_name="comments",
+    text = models.TextField(
+        verbose_name='Текст комментария',
     )
-    text = models.TextField(verbose_name="Текст комментария")
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        verbose_name='Дата',
+        auto_now_add=True,
+    )
 
     class Meta:
-        ordering = ("created_at",)
-        verbose_name = "комментарий"
-        verbose_name_plural = "Комментарии"
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ('created_at',)
 
     def __str__(self):
         return self.text[:MAX_STR_LENGTH]

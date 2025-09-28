@@ -1,33 +1,40 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import get_user_model
+from django.utils import timezone
 
-from .models import Post, Comment
-
-User = get_user_model()
-
-
-class RegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-
-    class Meta(UserCreationForm.Meta):
-        model = User
-        fields = ("username", "first_name", "last_name", "email", "password1", "password2")
-
-
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ("username", "first_name", "last_name", "email")
+from .models import Comment, Post
 
 
 class PostForm(forms.ModelForm):
+    """Форма для добавления и редактирования публикаций."""
+
+    pub_date = forms.DateTimeField(
+        label="Дата публикации",
+        required=True,
+        initial=timezone.now,
+        widget=forms.DateTimeInput(
+            attrs={"type": "datetime-local"},
+            format="%Y-%m-%dT%H:%M",
+        ),
+        help_text="Выберите дату. В будущем — отложенная публикация.",
+    )
+
     class Meta:
         model = Post
-        fields = ("title", "text", "category", "location", "image", "pub_date")
+        fields = (
+            "title",
+            "image",
+            "text",
+            "pub_date",
+            "location",
+            "category",
+            "is_published",
+        )
 
 
 class CommentForm(forms.ModelForm):
+    """Форма для комментариев."""
+
     class Meta:
         model = Comment
         fields = ("text",)
+        labels = {"text": "Напишите комментарий"}
