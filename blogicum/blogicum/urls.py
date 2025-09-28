@@ -15,7 +15,6 @@ urlpatterns = [
     path("pages/", include("pages.urls", namespace="pages")),
     path("users/", include("users.urls", namespace="users")),
     path("auth/", include("django.contrib.auth.urls")),
-    # 👇 регистрация без namespace, как требуют тесты
     path("auth/registration/", SignUpView.as_view(), name="registration"),
 ]
 

@@ -9,7 +9,6 @@ from .mixins import PostBaseMixin, CommentBaseMixin
 from .utils import filter_published_posts
 
 
-# Количество записей на страницу (пагинация)
 POSTS_PER_PAGE = 10
 
 
