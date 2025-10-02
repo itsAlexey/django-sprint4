@@ -3,7 +3,8 @@ from django.urls import reverse
 
 
 class User(AbstractUser):
-    """Расширенная стандартная модель пользователя."""
+    """Кастомная модель пользователя: расширяем стандартный AbstractUser."""
 
     def get_absolute_url(self):
+        """Ссылка на профиль пользователя."""
         return reverse("blog:profile", kwargs={"username": self.username})

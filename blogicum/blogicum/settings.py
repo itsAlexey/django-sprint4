@@ -111,13 +111,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-MEDIA_ROOT = BASE_DIR / 'media/'
-EMAIL_FILE_PATH = BASE_DIR / 'sent_emails/'
-MEDIA_URL = '/media/'
-LOGIN_REDIRECT_URL = 'blog:index'
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_URL = 'users:login'
 CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
+LOGIN_REDIRECT_URL = 'blog:index'
+LOGIN_URL = 'users:login'
+MEDIA_URL = '/media/'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails/'
+MEDIA_ROOT = BASE_DIR / 'media/'

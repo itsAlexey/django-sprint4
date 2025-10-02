@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 User = get_user_model()
 
 
-class RegistrationForm(UserCreationForm):
+class CustomUserCreationForm(UserCreationForm):
     """Форма регистрации нового пользователя."""
 
     class Meta(UserCreationForm.Meta):
@@ -13,15 +13,9 @@ class RegistrationForm(UserCreationForm):
         fields = ("username", "email", "first_name", "last_name")
 
 
-class ProfileEditForm(forms.ModelForm):
-    """Форма для редактирования профиля пользователя."""
+class EditUserProfileForm(forms.ModelForm):
+    """Форма редактирования профиля текущего пользователя."""
 
     class Meta:
         model = User
         fields = ("username", "email", "first_name", "last_name")
-        labels = {
-            "username": "Логин",
-            "email": "Электронная почта",
-            "first_name": "Имя",
-            "last_name": "Фамилия",
-        }

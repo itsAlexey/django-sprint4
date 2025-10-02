@@ -1,21 +1,19 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Comment, Post
+from .models import Post, Comment
 
 
 class PostForm(forms.ModelForm):
-    """Форма для добавления и редактирования публикаций."""
+    """Форма для поста."""
 
     pub_date = forms.DateTimeField(
-        label="Дата публикации",
-        required=True,
         initial=timezone.now,
+        required=True,
         widget=forms.DateTimeInput(
             attrs={"type": "datetime-local"},
             format="%Y-%m-%dT%H:%M",
         ),
-        help_text="Выберите дату. В будущем — отложенная публикация.",
     )
 
     class Meta:
@@ -32,9 +30,8 @@ class PostForm(forms.ModelForm):
 
 
 class CommentForm(forms.ModelForm):
-    """Форма для комментариев."""
+    """Форма для комментария."""
 
     class Meta:
         model = Comment
         fields = ("text",)
-        labels = {"text": "Напишите комментарий"}

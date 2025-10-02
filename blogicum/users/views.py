@@ -4,17 +4,17 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
-from .forms import RegistrationForm, ProfileEditForm
+from .forms import CustomUserCreationForm, EditUserProfileForm
 
 User = get_user_model()
 
 
-class SignUpView(CreateView):
-    """Регистрация нового пользователя + авто-логин."""
+class UserRegisterView(CreateView):
+    """Регистрация нового пользователя + автоматический вход."""
 
-    form_class = RegistrationForm
     template_name = "registration/registration_form.html"
-    success_url = reverse_lazy("blog:index")
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy("users:login")
 
     def form_valid(self, form):
         user = form.save()
@@ -22,12 +22,12 @@ class SignUpView(CreateView):
         return redirect("blog:index")
 
 
-class ProfileUpdateView(LoginRequiredMixin, UpdateView):
-    """Редактирование данных профиля (только самого себя)."""
+class UserProfileEditView(LoginRequiredMixin, UpdateView):
+    """Редактирование профиля текущего залогиненного пользователя."""
 
     model = User
-    form_class = ProfileEditForm
+    form_class = EditUserProfileForm
     template_name = "blog/user.html"
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         return self.request.user
