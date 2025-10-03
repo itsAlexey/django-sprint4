@@ -1,37 +1,39 @@
 from django import forms
-from django.utils import timezone
 
-from .models import Post, Comment
+from .models import Comment, Post, User
 
 
 class PostForm(forms.ModelForm):
-    """Форма для поста."""
-
-    pub_date = forms.DateTimeField(
-        initial=timezone.now,
-        required=True,
-        widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"},
-            format="%Y-%m-%dT%H:%M",
-        ),
-    )
+    """Форма создания/редактирования публикации без ручного выбора автора."""
 
     class Meta:
         model = Post
-        fields = (
-            "title",
-            "image",
-            "text",
-            "pub_date",
-            "location",
-            "category",
-            "is_published",
-        )
+        exclude = ("author",)
+        widgets = {
+            "pub_date": forms.DateTimeInput(
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local"}
+            ),
+        }
 
 
 class CommentForm(forms.ModelForm):
-    """Форма для комментария."""
+    """Форма комментария к посту."""
 
     class Meta:
         model = Comment
         fields = ("text",)
+        widgets = {
+            "text": forms.Textarea(
+                attrs={"rows": 5, "cols": 60,
+                       "placeholder": "Напишите комментарий..."}
+            )
+        }
+
+
+class UserForm(forms.ModelForm):
+    """Редактирование профиля пользователя."""
+
+    class Meta:
+        model = User
+        fields = ("username", "first_name", "last_name", "email")
